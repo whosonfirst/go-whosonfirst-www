@@ -18,6 +18,20 @@ import (
 	"strings"
 )
 
+// used to pass custom -mime-type .foo=text/plain args that are
+// set below using mime.AddExtensionType
+
+type MimeTypes []string
+
+func (m *MimeTypes) String() string {
+	return strings.Join(*m, " ")
+}
+
+func (m *MimeTypes) Set(value string) error {
+	*m = append(*m, value)
+	return nil
+}
+
 // all of this S3 stuff is cloned from https://github.com/thisisaaronland/go-iiif/blob/master/aws/s3.go
 // and probably deserves to be moved in to a bespoke package some day... (20170131/thisisaaronland)
 
@@ -121,6 +135,10 @@ func (conn *S3Connection) prepareKey(key string) string {
 
 func main() {
 
+	var mime_types MimeTypes
+
+	flag.Var(&mime_types, "mime-type", "...")
+
 	var s3_credentials = flag.String("s3-credentials", "", "...")
 	var s3_bucket = flag.String("s3-bucket", "whosonfirst.mapzen.com", "...")
 	var s3_prefix = flag.String("s3-prefix", "", "...")
@@ -154,6 +172,11 @@ func main() {
 
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	for _, str_pair := range mime_types {
+		pair := strings.Split(str_pair, "=")
+		mime.AddExtensionType(pair[0], pair[1])
 	}
 
 	mime.AddExtensionType(".yaml", "text/x-yaml")
