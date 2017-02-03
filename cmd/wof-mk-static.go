@@ -13,7 +13,7 @@ import (
 	"path/filepath"
 )
 
-func Parse(path string) (string, error) {
+func Parse(path string, id string) (string, error) {
 
 	fh, err := os.Open(path)
 
@@ -29,7 +29,7 @@ func Parse(path string) (string, error) {
 		return "", err
 	}
 
-	result := gjson.GetBytes(bytes, "wof:id")
+	result := gjson.GetBytes(bytes, id)
 	wofid := int(result.Int())
 
 	rel_path, err := uri.Id2Path(wofid)
@@ -72,6 +72,7 @@ func Copy(src string, dest string) error {
 func main() {
 
 	var static = flag.String("static", "", "...")
+	var id = flag.String("id", "wof:id", "...")
 
 	flag.Parse()
 
@@ -90,7 +91,7 @@ func main() {
 
 	for _, src_path := range possible {
 
-		rel_path, err := Parse(src_path)
+		rel_path, err := Parse(src_path, *id)
 
 		if err != nil {
 			log.Fatal(err)
