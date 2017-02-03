@@ -14,6 +14,7 @@ import (
 	"log"
 	"mime"
 	"os"
+	"os/user"
 	"path/filepath"
 	"strings"
 )
@@ -137,9 +138,16 @@ func main() {
 
 	var mime_types MimeTypes
 
+	whoami, err := user.Current()
+	default_creds := ""
+
+	if err == nil {
+		default_creds = fmt.Sprintf("shared:%s/.aws/credentials:default", whoami.HomeDir)
+	}
+
 	flag.Var(&mime_types, "mime-type", "...")
 
-	var s3_credentials = flag.String("s3-credentials", "", "...")
+	var s3_credentials = flag.String("s3-credentials", default_creds, "...")
 	var s3_bucket = flag.String("s3-bucket", "whosonfirst.mapzen.com", "...")
 	var s3_prefix = flag.String("s3-prefix", "", "...")
 	var s3_region = flag.String("s3-region", "us-east-1", "...")
