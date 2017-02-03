@@ -15,7 +15,9 @@ build:	fmt bin
 
 deps:   rmdeps
 	@GOPATH=$(GOPATH) go get -u "github.com/whosonfirst/go-whosonfirst-crawl"
+	@GOPATH=$(GOPATH) go get -u "github.com/whosonfirst/go-whosonfirst-uri"
 	@GOPATH=$(GOPATH) go get -u "github.com/aws/aws-sdk-go"
+	@GOPATH=$(GOPATH) go get -u "github.com/tidwall/gjson"
 
 vendor-deps: deps
 	if test ! -d vendor; then mkdir vendor; fi
@@ -25,6 +27,7 @@ vendor-deps: deps
 
 bin: 	self
 	@GOPATH=$(GOPATH) go build -o bin/wof-clone-website cmd/wof-clone-website.go
+	@GOPATH=$(GOPATH) go build -o bin/wof-mk-static cmd/wof-mk-static.go
 
 fmt:
 	go fmt cmd/*.go
