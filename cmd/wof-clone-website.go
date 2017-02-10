@@ -33,6 +33,31 @@ func (m *MimeTypes) Set(value string) error {
 	return nil
 }
 
+type Ignore []string
+
+func (i *Ignore) String() string {
+	return strings.Join(*i, " ")
+}
+
+func (i *Ignore) Set(value string) error {
+	*i = append(*i, value)
+	return nil
+}
+
+func (i *Ignore) IsIgnored(path string) bool {
+
+	// fname := filepath.Base(path)
+
+	for _, match := range *i {
+
+		if strings.HasSuffix(path, match) {
+			return true
+		}
+	}
+
+	return false
+}
+
 // all of this S3 stuff is cloned from https://github.com/thisisaaronland/go-iiif/blob/master/aws/s3.go
 // and probably deserves to be moved in to a bespoke package some day... (20170131/thisisaaronland)
 
@@ -137,6 +162,7 @@ func (conn *S3Connection) prepareKey(key string) string {
 func main() {
 
 	var mime_types MimeTypes
+	var ignored Ignore
 
 	whoami, err := user.Current()
 	default_creds := ""
@@ -146,6 +172,7 @@ func main() {
 	}
 
 	flag.Var(&mime_types, "mime-type", "...")
+	flag.Var(&ignored, "ignore", "...")
 
 	var s3_credentials = flag.String("s3-credentials", default_creds, "...")
 	var s3_bucket = flag.String("s3-bucket", "whosonfirst.mapzen.com", "...")
@@ -193,6 +220,11 @@ func main() {
 	callback := func(path string, info os.FileInfo) error {
 
 		if info.IsDir() {
+			return nil
+		}
+
+		if ignored.IsIgnored(path) {
+			log.Printf("%s is ignored, skipping\n", path)
 			return nil
 		}
 
