@@ -234,7 +234,7 @@ func main() {
 			rel_path = strings.Replace(rel_path, "/", "", 1)
 		}
 
-		log.Printf("clone %s to s3://%s/%s/%s\n", path, cfg.Bucket, cfg.Prefix, rel_path)
+		log.Printf("clone %s to s3://%s%s/%s\n", path, cfg.Bucket, cfg.Prefix, rel_path)
 
 		ext := filepath.Ext(path)
 
